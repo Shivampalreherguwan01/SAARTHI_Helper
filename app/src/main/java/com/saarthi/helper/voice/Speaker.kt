@@ -4,34 +4,35 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import java.util.Locale
 
-class Speaker(context: Context) {
+class Speaker(context: Context) : TextToSpeech.OnInitListener {
 
-    private val tts = TextToSpeech(context) {
+    private var tts: TextToSpeech? = null
 
-        if (it == TextToSpeech.SUCCESS) {
-            tts.language = Locale("hi", "IN")
+    init {
+        tts = TextToSpeech(context, this)
+    }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            tts?.language = Locale("hi", "IN")
         }
-
     }
 
     fun speak(text: String) {
-
-        tts.speak(
+        tts?.speak(
             text,
             TextToSpeech.QUEUE_FLUSH,
             null,
             "SAARTHI"
         )
-
     }
 
     fun stop() {
-        tts.stop()
+        tts?.stop()
     }
 
     fun destroy() {
-        tts.stop()
-        tts.shutdown()
+        tts?.stop()
+        tts?.shutdown()
     }
-
 }
