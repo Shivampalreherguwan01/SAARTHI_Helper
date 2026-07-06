@@ -1,0 +1,23 @@
+# Gradle
+.gradle/
+
+# Build Output
+build/
+app/build/
+
+# Local SDK
+local.properties
+
+# Logs
+*.log
+error.txt
+
+# IDE
+.idea/
+*.iml
+
+# Kotlin
+captures/
+
+# OS Files
+.DS_Store
