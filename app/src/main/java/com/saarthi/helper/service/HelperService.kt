@@ -1,4 +1,3 @@
-
 package com.saarthi.helper.service
 
 import android.app.Notification
@@ -35,13 +34,42 @@ class HelperService : Service() {
         startForeground(1, notification)
 
         speaker = Speaker(this)
+
         socket = SocketClient()
+
+        socket.onMessageReceived = { message ->
+
+            Log.d("SAARTHI", "Server: $message")
+
+            if (message.contains("\"type\":\"speak\"")) {
+
+                val text =
+                    Regex("\"text\"\\s*:\\s*\"([^\"]*)\"")
+                        .find(message)
+                        ?.groupValues
+                        ?.get(1)
+
+                if (!text.isNullOrEmpty()) {
+                    speaker.speak(text)
+                }
+            }
+        }
 
         socket.connect("ws://192.168.1.100:8765")
 
         voice = VoiceListener(this) { text ->
+
             Log.d("SAARTHI", "User: $text")
-            socket.send(text)
+
+            socket.send(
+                """
+                {
+                  "type":"voice",
+                  "text":"$text",
+                  "data":""
+                }
+                """.trimIndent()
+            )
         }
 
         voice.start()
@@ -56,8 +84,10 @@ class HelperService : Service() {
     }
 
     override fun onDestroy() {
+
         voice.destroy()
         speaker.destroy()
+
         super.onDestroy()
     }
 
@@ -66,7 +96,9 @@ class HelperService : Service() {
     }
 
     private fun createChannel() {
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
             val channel = NotificationChannel(
                 "SAARTHI_HELPER",
                 "SAARTHI Helper",

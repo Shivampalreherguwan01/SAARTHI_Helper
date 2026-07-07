@@ -8,6 +8,8 @@ class SocketClient {
 
     private var webSocket: WebSocket? = null
 
+    var onMessageReceived: ((String) -> Unit)? = null
+
     fun connect(serverUrl: String) {
 
         val client = OkHttpClient()
@@ -20,17 +22,35 @@ class SocketClient {
             request,
             object : WebSocketListener() {
 
-                override fun onOpen(webSocket: WebSocket, response: Response) {
+                override fun onOpen(
+                    webSocket: WebSocket,
+                    response: Response
+                ) {
                     Log.d("SAARTHI", "Connected")
                 }
 
-                override fun onMessage(webSocket: WebSocket, text: String) {
-                    Log.d("SAARTHI", "Message: $text")
+                override fun onMessage(
+                    webSocket: WebSocket,
+                    text: String
+                ) {
+
+                    Log.d("SAARTHI", "Received: $text")
+
+                    onMessageReceived?.invoke(text)
+
                 }
 
-                override fun onMessage(webSocket: WebSocket, bytes: ByteString) {}
+                override fun onMessage(
+                    webSocket: WebSocket,
+                    bytes: ByteString
+                ) {
+                }
 
-                override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                override fun onClosing(
+                    webSocket: WebSocket,
+                    code: Int,
+                    reason: String
+                ) {
                     webSocket.close(1000, null)
                 }
 
@@ -39,13 +59,19 @@ class SocketClient {
                     t: Throwable,
                     response: Response?
                 ) {
+
                     Log.e("SAARTHI", "Connection Failed", t)
+
                 }
+
             }
         )
     }
 
     fun send(text: String) {
+
         webSocket?.send(text)
+
     }
+
 }
