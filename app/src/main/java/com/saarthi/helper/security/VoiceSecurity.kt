@@ -3,7 +3,9 @@ package com.saarthi.helper.security
 import android.content.Context
 
 class VoiceSecurity(
+
     context: Context
+
 ) {
 
     private val database =
@@ -14,26 +16,32 @@ class VoiceSecurity(
 
     init {
 
-        verifier.initialize()
+        if (database.exists()) {
+
+            verifier.enable()
+
+        }
 
     }
 
     fun isEnabled(): Boolean {
 
-        return database.exists()
+        return verifier.isEnabled()
 
     }
 
     fun enroll(audioPath: String): Boolean {
 
-        val ok = verifier.enroll(audioPath)
+        val ok =
+            verifier.enroll(audioPath)
 
-        if (!ok) return false
+        if (!ok) {
 
-        /*
-         Next:
-         Save embedding in database.
-         */
+            return false
+
+        }
+
+        verifier.enable()
 
         return true
 
@@ -41,17 +49,13 @@ class VoiceSecurity(
 
     fun verify(audioPath: String): Boolean {
 
-        if (!database.exists()) {
-
-            return true
-
-        }
-
         return verifier.verify(audioPath)
 
     }
 
     fun removeProfile() {
+
+        verifier.disable()
 
         database.clear()
 
