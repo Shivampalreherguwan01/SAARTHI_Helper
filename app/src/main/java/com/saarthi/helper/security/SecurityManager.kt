@@ -4,17 +4,20 @@ import android.content.Context
 
 object SecurityManager {
 
-    private lateinit var verifier: SpeakerVerifier
+    private lateinit var voiceSecurity: VoiceSecurity
 
-    fun initialize(context: Context) {
+    fun initialize(
+        context: Context
+    ) {
 
-        verifier = SpeakerVerifier(context)
+        voiceSecurity =
+            VoiceSecurity(context)
 
     }
 
-    fun voice(): SpeakerVerifier {
+    fun voice(): VoiceSecurity {
 
-        return verifier
+        return voiceSecurity
 
     }
 
