@@ -3,39 +3,73 @@ package com.saarthi.helper.security
 import android.content.Context
 
 class SpeakerVerifier(
+
     private val context: Context
+
 ) {
+
+    private val model =
+
+        SpeakerModel(context)
 
     private var enabled = false
 
     fun enable() {
+
         enabled = true
+
     }
 
     fun disable() {
+
         enabled = false
+
     }
 
     fun isEnabled(): Boolean {
+
         return enabled
+
     }
 
-    fun enroll(audioPath: String): Boolean {
+    fun enroll(
 
-        // आगे यहाँ ONNX model से voice embedding बनेगी
+        audioPath: String
 
-        return true
+    ): ByteArray? {
+
+        return model.createEmbedding(audioPath)
+
     }
 
-    fun verify(audioPath: String): Boolean {
+    fun verify(
+
+        audioPath: String,
+
+        savedEmbedding: ByteArray?
+
+    ): Boolean {
 
         if (!enabled) {
+
             return true
+
         }
 
-        // आगे यहाँ Speaker Verification होगी
+        if (savedEmbedding == null) {
 
-        return true
+            return false
+
+        }
+
+        return model.verify(
+
+            audioPath,
+
+            savedEmbedding
+
+        )
+
     }
 
 }

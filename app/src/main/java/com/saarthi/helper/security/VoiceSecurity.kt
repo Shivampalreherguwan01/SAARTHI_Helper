@@ -30,16 +30,23 @@ class VoiceSecurity(
 
     }
 
-    fun enroll(audioPath: String): Boolean {
+    fun enroll(
 
-        val ok =
+        audioPath: String
+
+    ): Boolean {
+
+        val embedding =
+
             verifier.enroll(audioPath)
 
-        if (!ok) {
+                ?: return false
 
-            return false
+        database.save(
 
-        }
+            embedding
+
+        )
 
         verifier.enable()
 
@@ -47,9 +54,23 @@ class VoiceSecurity(
 
     }
 
-    fun verify(audioPath: String): Boolean {
+    fun verify(
 
-        return verifier.verify(audioPath)
+        audioPath: String
+
+    ): Boolean {
+
+        val embedding =
+
+            database.load()
+
+        return verifier.verify(
+
+            audioPath,
+
+            embedding
+
+        )
 
     }
 

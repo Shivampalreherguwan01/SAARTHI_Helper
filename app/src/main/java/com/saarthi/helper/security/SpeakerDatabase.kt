@@ -1,72 +1,58 @@
 package com.saarthi.helper.security
 
 import android.content.Context
-import org.json.JSONArray
+import java.io.File
 
 class SpeakerDatabase(
-    private val context: Context
+
+    context: Context
+
 ) {
 
-    private val prefs =
-        context.getSharedPreferences(
-            "speaker_db",
-            Context.MODE_PRIVATE
+    private val profileFile =
+
+        File(
+            context.filesDir,
+            "speaker_profile.bin"
         )
-
-    fun save(embedding: FloatArray) {
-
-        val json = JSONArray()
-
-        embedding.forEach {
-
-            json.put(it.toDouble())
-
-        }
-
-        prefs.edit()
-
-            .putString(
-                "voice_embedding",
-                json.toString()
-            )
-
-            .apply()
-
-    }
-
-    fun load(): FloatArray? {
-
-        val raw =
-            prefs.getString(
-                "voice_embedding",
-                null
-            ) ?: return null
-
-        val json = JSONArray(raw)
-
-        val result =
-            FloatArray(json.length())
-
-        for (i in 0 until json.length()) {
-
-            result[i] =
-                json.getDouble(i).toFloat()
-
-        }
-
-        return result
-
-    }
 
     fun exists(): Boolean {
 
-        return prefs.contains("voice_embedding")
+        return profileFile.exists()
+
+    }
+
+    fun save(
+
+        embedding: ByteArray
+
+    ) {
+
+        profileFile.writeBytes(
+            embedding
+        )
+
+    }
+
+    fun load(): ByteArray? {
+
+        if (!exists()) {
+
+            return null
+
+        }
+
+        return profileFile.readBytes()
 
     }
 
     fun clear() {
 
-        prefs.edit().clear().apply()
+        if (exists()) {
+
+            profileFile.delete()
+
+        }
 
     }
 

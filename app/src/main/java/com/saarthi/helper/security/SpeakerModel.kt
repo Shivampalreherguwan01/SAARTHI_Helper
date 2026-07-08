@@ -1,41 +1,52 @@
 package com.saarthi.helper.security
 
-import ai.onnxruntime.OrtEnvironment
-import ai.onnxruntime.OrtSession
+import android.content.Context
 
-class SpeakerModel {
+class SpeakerModel(
 
-    private var environment: OrtEnvironment? = null
+    private val context: Context
 
-    private var session: OrtSession? = null
+) {
 
-    fun load(modelBytes: ByteArray): Boolean {
+    fun createEmbedding(
 
-        return try {
+        audioPath: String
 
-            environment = OrtEnvironment.getEnvironment()
+    ): ByteArray {
 
-            session = environment!!.createSession(modelBytes)
+        /*
+         अभी Temporary Implementation है.
 
-            true
+         बाद में यहाँ:
+         - ONNX Runtime
+         - Audio Preprocessing
+         - ECAPA Model
+         - Real Voice Embedding
 
-        } catch (e: Exception) {
+         आएगा.
+        */
 
-            false
-
-        }
-
-    }
-
-    fun loaded(): Boolean {
-
-        return session != null
+        return audioPath.toByteArray()
 
     }
 
-    fun session(): OrtSession? {
+    fun verify(
 
-        return session
+        audioPath: String,
+
+        savedEmbedding: ByteArray
+
+    ): Boolean {
+
+        val current =
+
+            createEmbedding(audioPath)
+
+        return current.contentEquals(
+
+            savedEmbedding
+
+        )
 
     }
 
