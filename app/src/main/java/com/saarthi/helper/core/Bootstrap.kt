@@ -5,6 +5,7 @@ import com.saarthi.helper.network.SocketService
 import com.saarthi.helper.plugins.PluginManager
 import com.saarthi.helper.plugins.SpeakPlugin
 import com.saarthi.helper.plugins.VoicePlugin
+import com.saarthi.helper.plugins.VoiceEnrollmentPlugin
 import com.saarthi.helper.router.MessageRouter
 
 class Bootstrap(
@@ -32,6 +33,10 @@ class Bootstrap(
                 context,
                 socket
             )
+        )
+
+        plugins.register(
+            VoiceEnrollmentPlugin()
         )
 
         plugins.startAll()
