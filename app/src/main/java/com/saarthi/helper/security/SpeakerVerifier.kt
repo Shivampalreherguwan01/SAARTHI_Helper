@@ -3,72 +3,67 @@ package com.saarthi.helper.security
 import android.content.Context
 
 class SpeakerVerifier(
-
     private val context: Context
-
 ) {
 
     private val model =
+        SpeakerModel()
 
-        SpeakerModel(context)
+    private val extractor =
+        AudioFeatureExtractor()
 
     private var enabled = false
 
+    init {
+
+        ModelLoader.load(
+            context,
+            model
+        )
+
+    }
+
     fun enable() {
-
         enabled = true
-
     }
 
     fun disable() {
-
         enabled = false
-
     }
 
     fun isEnabled(): Boolean {
-
         return enabled
-
     }
 
     fun enroll(
-
         audioPath: String
+    ): Boolean {
 
-    ): ByteArray? {
+        val feature =
+            extractor.extract(audioPath)
 
-        return model.createEmbedding(audioPath)
+        val embedding =
+            model.embedding(feature)
+
+        return embedding != null
 
     }
 
     fun verify(
-
-        audioPath: String,
-
-        savedEmbedding: ByteArray?
-
+        audioPath: String
     ): Boolean {
 
         if (!enabled) {
-
             return true
-
         }
 
-        if (savedEmbedding == null) {
+        val feature =
+            extractor.extract(audioPath)
 
-            return false
+        val embedding =
+            model.embedding(feature)
 
-        }
-
-        return model.verify(
-
-            audioPath,
-
-            savedEmbedding
-
-        )
+        return embedding != null
 
     }
 

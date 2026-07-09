@@ -1,61 +1,65 @@
 package com.saarthi.helper.security
 
-import android.content.Context
+import ai.onnxruntime.OnnxTensor
+import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 
-class SpeakerModel(
+class SpeakerModel {
 
-    private val context: Context
+    private val env =
+        OrtEnvironment.getEnvironment()
 
-) {
+    private var session: OrtSession? = null
 
-    private var modelLoaded = false
+    fun load(model: ByteArray): Boolean {
 
-    fun load(
+        return try {
 
-        modelBytes: ByteArray
+            session =
+                env.createSession(model)
 
-    ): Boolean {
+            true
 
-        /*
-         अभी Placeholder है।
+        } catch (e: Exception) {
 
-         भविष्य में यहाँ:
-         ONNX Runtime Session बनेगा।
-        */
+            false
 
-        modelLoaded = modelBytes.isNotEmpty()
-
-        return modelLoaded
-
-    }
-
-    fun createEmbedding(
-
-        audioPath: String
-
-    ): ByteArray {
-
-        return audioPath.toByteArray()
+        }
 
     }
 
-    fun verify(
+    fun embedding(
+        feature: Array<Array<FloatArray>>
+    ): FloatArray? {
 
-        audioPath: String,
+        val s = session ?: return null
 
-        savedEmbedding: ByteArray
+        return try {
 
-    ): Boolean {
+            val tensor =
+                OnnxTensor.createTensor(
+                    env,
+                    feature
+                )
 
-        val current =
+            val result =
+                s.run(
+                    mapOf(
+                        "feature" to tensor
+                    )
+                )
 
-            createEmbedding(audioPath)
+            @Suppress("UNCHECKED_CAST")
+            val output =
+                result[0].value as Array<FloatArray>
 
-        return current.contentEquals(
+            output[0]
 
-            savedEmbedding
+        } catch (e: Exception) {
 
-        )
+            null
+
+        }
 
     }
 
