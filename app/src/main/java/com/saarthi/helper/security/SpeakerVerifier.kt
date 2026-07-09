@@ -10,7 +10,7 @@ class SpeakerVerifier(
         SpeakerModel()
 
     private val extractor =
-        AudioFeatureExtractor()
+        AudioFeatureExtractor
 
     private var enabled = false
 
