@@ -1,0 +1,44 @@
+name: Model Info
+
+on:
+  workflow_dispatch:
+
+jobs:
+  info:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install ONNX
+        run: pip install onnx
+
+      - name: Show Model Info
+        run: |
+          python << 'EOF'
+          import onnx
+
+          m = onnx.load("app/src/main/assets/speaker/model.onnx")
+
+          print("="*50)
+          print("INPUTS")
+          print("="*50)
+
+          for i in m.graph.input:
+              print(i.name)
+              print([d.dim_value for d in i.type.tensor_type.shape.dim])
+
+          print("="*50)
+          print("OUTPUTS")
+          print("="*50)
+
+          for o in m.graph.output:
+              print(o.name)
+              print([d.dim_value for d in o.type.tensor_type.shape.dim])
+          EOF
