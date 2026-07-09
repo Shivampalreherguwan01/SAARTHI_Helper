@@ -8,23 +8,32 @@ class SpeakerModel(
 
 ) {
 
+    private var modelLoaded = false
+
+    fun load(
+
+        modelBytes: ByteArray
+
+    ): Boolean {
+
+        /*
+         अभी Placeholder है।
+
+         भविष्य में यहाँ:
+         ONNX Runtime Session बनेगा।
+        */
+
+        modelLoaded = modelBytes.isNotEmpty()
+
+        return modelLoaded
+
+    }
+
     fun createEmbedding(
 
         audioPath: String
 
     ): ByteArray {
-
-        /*
-         अभी Temporary Implementation है.
-
-         बाद में यहाँ:
-         - ONNX Runtime
-         - Audio Preprocessing
-         - ECAPA Model
-         - Real Voice Embedding
-
-         आएगा.
-        */
 
         return audioPath.toByteArray()
 
