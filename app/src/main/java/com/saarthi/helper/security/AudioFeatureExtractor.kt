@@ -1,21 +1,59 @@
 package com.saarthi.helper.security
 
-class AudioFeatureExtractor {
+object AudioFeatureExtractor {
 
-    fun extract(audioPath: String): Array<Array<FloatArray>> {
+    fun extract(
+        audioPath: String
+    ): Array<FloatArray> {
 
-        /*
-         अभी placeholder है।
-         अगले step में:
-         PCM -> STFT -> Mel Filter -> Log Mel
-         बनाकर यही method [1][360][80] return करेगी।
-        */
+        val pcm =
+            AudioLoader.load(audioPath)
 
-        return Array(1) {
-            Array(360) {
-                FloatArray(80)
-            }
+        val audio =
+            AudioResampler.resample(
+                pcm,
+                16000,
+                16000
+            )
+
+        val frames =
+            AudioFramer.frame(audio)
+
+        val features =
+            mutableListOf<FloatArray>()
+
+        for (frame in frames) {
+
+            WindowFunction.hamming(frame)
+
+            val real =
+                frame.copyOf()
+
+            val imag =
+                FloatArray(real.size)
+
+            FFT(real.size)
+                .transform(real, imag)
+
+            val spectrum =
+                Spectrum.power(real, imag)
+
+            val mel =
+                MelFilterBank()
+                    .apply(spectrum)
+
+            val logMel =
+                LogMel.apply(mel)
+
+            val normalized =
+                FeatureNormalizer
+                    .normalize(logMel)
+
+            features.add(normalized)
+
         }
+
+        return FeaturePadding.pad(features)
 
     }
 
