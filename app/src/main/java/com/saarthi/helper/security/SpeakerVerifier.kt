@@ -40,7 +40,9 @@ class SpeakerVerifier(
     ): Boolean {
 
         val feature =
-            extractor.extract(audioPath)
+            arrayOf(
+                extractor.extract(audioPath)
+            )
 
         val embedding =
             model.embedding(feature)
@@ -58,7 +60,9 @@ class SpeakerVerifier(
         }
 
         val feature =
-            extractor.extract(audioPath)
+            arrayOf(
+                extractor.extract(audioPath)
+            )
 
         val embedding =
             model.embedding(feature)
@@ -68,3 +72,4 @@ class SpeakerVerifier(
     }
 
 }
+
