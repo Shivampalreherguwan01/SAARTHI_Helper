@@ -2,24 +2,17 @@ package com.saarthi.helper.bridge
 
 import android.content.Context
 
-class BodyManager(
-    context: Context
+class AppManager(
+    private val context: Context
 ) {
-
-    private val appManager =
-        AppManager(context)
 
     fun execute(
         command: HelperCommand
     ): Boolean {
 
-        if (appManager.execute(command)) {
-            return true
-        }
-
         return when (command.action) {
 
-            "helper.ping" -> true
+            "app.ping" -> true
 
             else -> false
 
