@@ -12,6 +12,9 @@ class BodyManager(
     private val cameraManager =
         CameraManager(context)
 
+    private val voiceManager =
+        VoiceManager(context)
+
     fun execute(
         command: HelperCommand
     ): Boolean {
@@ -21,6 +24,10 @@ class BodyManager(
         }
 
         if (cameraManager.execute(command)) {
+            return true
+        }
+
+        if (voiceManager.execute(command)) {
             return true
         }
 
