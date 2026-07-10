@@ -9,11 +9,18 @@ class BodyManager(
     private val appManager =
         AppManager(context)
 
+    private val cameraManager =
+        CameraManager(context)
+
     fun execute(
         command: HelperCommand
     ): Boolean {
 
         if (appManager.execute(command)) {
+            return true
+        }
+
+        if (cameraManager.execute(command)) {
             return true
         }
 
