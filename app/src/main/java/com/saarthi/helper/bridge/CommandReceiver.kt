@@ -1,26 +1,19 @@
 package com.saarthi.helper.bridge
 
-class CommandReceiver {
+import android.content.Context
+
+class CommandReceiver(
+    context: Context
+) {
+
+    private val body =
+        BodyManager(context)
 
     fun execute(
         command: HelperCommand
     ): Boolean {
 
-        return when (command.action) {
-
-            "helper.ping" -> {
-
-                true
-
-            }
-
-            else -> {
-
-                false
-
-            }
-
-        }
+        return body.execute(command)
 
     }
 
