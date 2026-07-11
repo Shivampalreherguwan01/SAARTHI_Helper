@@ -5,6 +5,11 @@ plugins {
 
 android {
 
+    androidResources {
+        noCompress += "onnx"
+    }
+
+
     namespace = "com.saarthi.helper"
 
     compileSdk = 35
