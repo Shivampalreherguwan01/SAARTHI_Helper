@@ -9,23 +9,27 @@ import android.speech.SpeechRecognizer
 import java.io.File
 
 class VoiceListener(
-
     private val context: Context,
-
     private val onResult: (String, String?) -> Unit
-
 ) {
 
     private val recognizer =
         SpeechRecognizer.createSpeechRecognizer(context)
 
+    private var recorder: AudioRecorder? = null
+    private var recordedFile: File? = null
+
     init {
-
         recognizer.setRecognitionListener(
-
             object : RecognitionListener {
 
+                override fun onReadyForSpeech(params: Bundle?) {
+                    startRecording()
+                }
+
                 override fun onResults(results: Bundle?) {
+
+                    val audioFile = stopRecording()
 
                     val list =
                         results?.getStringArrayList(
@@ -33,19 +37,16 @@ class VoiceListener(
                         )
 
                     if (!list.isNullOrEmpty()) {
-
-                        val audioFile = createVoiceFile()
-
                         onResult(
                             list[0],
-                            audioFile.absolutePath
+                            audioFile?.absolutePath
                         )
-
                     }
-
                 }
 
-                override fun onReadyForSpeech(params: Bundle?) {}
+                override fun onError(error: Int) {
+                    stopRecording()
+                }
 
                 override fun onBeginningOfSpeech() {}
 
@@ -55,22 +56,19 @@ class VoiceListener(
 
                 override fun onEndOfSpeech() {}
 
-                override fun onError(error: Int) {}
-
                 override fun onPartialResults(partialResults: Bundle?) {}
 
                 override fun onEvent(eventType: Int, params: Bundle?) {}
-
             }
-
         )
-
     }
 
     private fun createVoiceFile(): File {
 
-        val dir =
-            File(context.filesDir, "voice")
+        val dir = File(
+            context.filesDir,
+            "voice"
+        )
 
         dir.mkdirs()
 
@@ -78,7 +76,31 @@ class VoiceListener(
             dir,
             "latest.wav"
         )
+    }
 
+    private fun startRecording() {
+
+        val file = createVoiceFile()
+
+        val audioRecorder =
+            AudioRecorder(file)
+
+        if (audioRecorder.start()) {
+            recorder = audioRecorder
+            recordedFile = file
+        }
+    }
+
+    private fun stopRecording(): File? {
+
+        val file =
+            recorder?.stop()
+
+        recorder = null
+
+        return file ?: recordedFile?.takeIf {
+            it.exists() && it.length() > 44
+        }
     }
 
     fun start() {
@@ -99,19 +121,15 @@ class VoiceListener(
         )
 
         recognizer.startListening(intent)
-
     }
 
     fun stop() {
-
+        stopRecording()
         recognizer.stopListening()
-
     }
 
     fun destroy() {
-
+        stopRecording()
         recognizer.destroy()
-
     }
-
 }
