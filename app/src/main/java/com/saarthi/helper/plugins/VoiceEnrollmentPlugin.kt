@@ -19,19 +19,18 @@ class VoiceEnrollmentPlugin : Plugin {
             return false
         }
 
-        when (message.text) {
+        return when (message.command) {
 
             "enroll_voice" -> {
 
-                if (message.data.isNotEmpty()) {
+                if (message.data.isNotBlank()) {
 
                     SecurityManager
                         .voice()
                         .enroll(message.data)
-
                 }
 
-                return true
+                true
             }
 
             "remove_voice" -> {
@@ -40,12 +39,10 @@ class VoiceEnrollmentPlugin : Plugin {
                     .voice()
                     .removeProfile()
 
-                return true
+                true
             }
 
+            else -> false
         }
-
-        return false
     }
-
 }
