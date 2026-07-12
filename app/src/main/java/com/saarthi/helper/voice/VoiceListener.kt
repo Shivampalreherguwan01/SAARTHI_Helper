@@ -3,33 +3,36 @@ package com.saarthi.helper.voice
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
-import java.io.File
 
 class VoiceListener(
     private val context: Context,
     private val onResult: (String, String?) -> Unit
 ) {
 
+    private val handler =
+        Handler(Looper.getMainLooper())
+
+    private var running = false
+
     private val recognizer =
         SpeechRecognizer.createSpeechRecognizer(context)
 
-    private var recorder: AudioRecorder? = null
-    private var recordedFile: File? = null
-
     init {
+
         recognizer.setRecognitionListener(
+
             object : RecognitionListener {
 
-                override fun onReadyForSpeech(params: Bundle?) {
-                    startRecording()
-                }
-
-                override fun onResults(results: Bundle?) {
-
-                    val audioFile = stopRecording()
+                override fun onResults(
+                    results: Bundle?
+                ) {
 
                     val list =
                         results?.getStringArrayList(
@@ -37,73 +40,49 @@ class VoiceListener(
                         )
 
                     if (!list.isNullOrEmpty()) {
-                        onResult(
-                            list[0],
-                            audioFile?.absolutePath
-                        )
+                        onResult(list[0], null)
                     }
+
+                    restart()
                 }
 
                 override fun onError(error: Int) {
-                    stopRecording()
+                    restart()
                 }
+
+                override fun onReadyForSpeech(
+                    params: Bundle?
+                ) {}
 
                 override fun onBeginningOfSpeech() {}
 
-                override fun onRmsChanged(rmsdB: Float) {}
+                override fun onRmsChanged(
+                    rmsdB: Float
+                ) {}
 
-                override fun onBufferReceived(buffer: ByteArray?) {}
+                override fun onBufferReceived(
+                    buffer: ByteArray?
+                ) {}
 
                 override fun onEndOfSpeech() {}
 
-                override fun onPartialResults(partialResults: Bundle?) {}
+                override fun onPartialResults(
+                    partialResults: Bundle?
+                ) {}
 
-                override fun onEvent(eventType: Int, params: Bundle?) {}
+                override fun onEvent(
+                    eventType: Int,
+                    params: Bundle?
+                ) {}
             }
         )
     }
 
-    private fun createVoiceFile(): File {
+    private fun listen() {
 
-        val dir = File(
-            context.filesDir,
-            "voice"
-        )
-
-        dir.mkdirs()
-
-        return File(
-            dir,
-            "latest.wav"
-        )
-    }
-
-    private fun startRecording() {
-
-        val file = createVoiceFile()
-
-        val audioRecorder =
-            AudioRecorder(file)
-
-        if (audioRecorder.start()) {
-            recorder = audioRecorder
-            recordedFile = file
+        if (!running) {
+            return
         }
-    }
-
-    private fun stopRecording(): File? {
-
-        val file =
-            recorder?.stop()
-
-        recorder = null
-
-        return file ?: recordedFile?.takeIf {
-            it.exists() && it.length() > 44
-        }
-    }
-
-    fun start() {
 
         val intent =
             Intent(
@@ -120,16 +99,55 @@ class VoiceListener(
             "hi-IN"
         )
 
-        recognizer.startListening(intent)
+        intent.putExtra(
+            RecognizerIntent.EXTRA_PARTIAL_RESULTS,
+            false
+        )
+
+        try {
+            recognizer.startListening(intent)
+        } catch (_: Exception) {
+            restart()
+        }
+    }
+
+    private fun restart() {
+
+        if (!running) {
+            return
+        }
+
+        handler.removeCallbacksAndMessages(null)
+
+        handler.postDelayed(
+            {
+                listen()
+            },
+            500
+        )
+    }
+
+    fun start() {
+
+        running = true
+        listen()
     }
 
     fun stop() {
-        stopRecording()
+
+        running = false
+
+        handler.removeCallbacksAndMessages(null)
+
         recognizer.stopListening()
     }
 
     fun destroy() {
-        stopRecording()
+
+        running = false
+
+        handler.removeCallbacksAndMessages(null)
+
         recognizer.destroy()
     }
 }
