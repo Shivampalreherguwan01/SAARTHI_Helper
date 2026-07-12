@@ -41,10 +41,19 @@ class Bootstrap(
 
         plugins.startAll()
 
-        socket.connect(
-            "ws://192.168.1.100:8765"
-        )
+        val preferences =
+            context.getSharedPreferences(
+                "saarthi_runtime",
+                Context.MODE_PRIVATE
+            )
 
+        val serverUrl =
+            preferences.getString(
+                "server_url",
+                "ws://127.0.0.1:8765"
+            ) ?: "ws://127.0.0.1:8765"
+
+        socket.connect(serverUrl)
     }
 
     fun stop() {
@@ -52,7 +61,5 @@ class Bootstrap(
         socket.disconnect()
 
         plugins.stopAll()
-
     }
-
 }
