@@ -27,6 +27,8 @@ class SocketService(
 
     fun connect(url: String) {
 
+        Log.d("SAARTHI", "CONNECTING TO: $url")
+
         val request =
             Request.Builder()
                 .url(url)
@@ -42,7 +44,7 @@ class SocketService(
                         response: Response
                     ) {
 
-                        Log.d("SAARTHI", "Socket Connected")
+                        Log.d("SAARTHI", "SOCKET CONNECTED")
 
                     }
 
@@ -50,6 +52,8 @@ class SocketService(
                         webSocket: WebSocket,
                         text: String
                     ) {
+
+                        Log.d("SAARTHI", "RECEIVED <- $text")
 
                         try {
 
@@ -62,7 +66,8 @@ class SocketService(
 
                             Log.e(
                                 "SAARTHI",
-                                e.toString()
+                                "PARSE ERROR",
+                                e
                             )
 
                         }
@@ -81,6 +86,8 @@ class SocketService(
                         reason: String
                     ) {
 
+                        Log.d("SAARTHI", "SOCKET CLOSING")
+
                         webSocket.close(
                             1000,
                             null
@@ -96,7 +103,8 @@ class SocketService(
 
                         Log.e(
                             "SAARTHI",
-                            t.toString()
+                            "SOCKET FAILURE",
+                            t
                         )
 
                     }
@@ -109,13 +117,19 @@ class SocketService(
 
     fun send(message: Message) {
 
-        socket?.send(
-            message.toJson()
-        )
+        val json = message.toJson()
+
+        Log.d("SAARTHI", "SEND -> $json")
+
+        val result = socket?.send(json)
+
+        Log.d("SAARTHI", "SEND RESULT -> $result")
 
     }
 
     fun disconnect() {
+
+        Log.d("SAARTHI", "SOCKET DISCONNECTED")
 
         socket?.close(
             1000,
@@ -125,3 +139,4 @@ class SocketService(
     }
 
 }
+
